@@ -1,9 +1,10 @@
 // Construct a schema, using GraphQL schema language
-const query = require('../root')
+const {RootQuery,mutations} = require('../root')
 const { buildSchema ,GraphQLSchema } = require('graphql')
 
 const schema  = new GraphQLSchema({
-  query
+  query:RootQuery,
+  mutation:mutations
 })
 //  const schema = buildSchema(`
 //   type Query {
