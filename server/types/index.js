@@ -1,4 +1,5 @@
-const { GraphQLObjectType, GraphQLID, GraphQLInt, GraphQLString } = require('graphql')
+const { GraphQLObjectType, GraphQLID, GraphQLInt, GraphQLString ,GraphQLList} = require('graphql')
+const User  = require('../models/User');
 
 /**  Define User Type  */
 
@@ -21,4 +22,25 @@ let AuthType = new GraphQLObjectType({
     })
 })
 
-module.exports = { UserType, AuthType }
+
+/** Define Board type  */
+let BoardType = new GraphQLObjectType({
+    name: "BoardType",
+    fields: () => ({
+        id: { type: GraphQLID },
+        name :{ type: GraphQLString },
+        description : { type: GraphQLString },
+        owner:{type:UserType,
+        async resolve(parent,args){
+            return User.findById(parent.owner)
+        }},
+        members :{type:new GraphQLList(UserType),
+        async resolve(parent,args){
+            let MemberList = await parent.users.map(async (user)=>{return await User.findById(user.user_id)});
+            return MemberList ;
+        } } 
+    })
+})
+
+
+module.exports = { UserType, AuthType , BoardType }

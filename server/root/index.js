@@ -1,7 +1,8 @@
 const axios = require('axios');
-const { GraphQLObjectType, GraphQLList, GraphQLString } = require('graphql')
-const { UserType, AuthType } = require('../types')
+const { GraphQLObjectType, GraphQLList, GraphQLString, GraphQLID } = require('graphql')
+const { UserType, AuthType, BoardType } = require('../types')
 const User = require('../models/User')
+const Board = require('../models/Board');
 
 const RootQuery = new GraphQLObjectType({
   name: "RootQueryType",
@@ -38,6 +39,12 @@ const RootQuery = new GraphQLObjectType({
           return " we can't help right now  !!"
         }
       }
+    },
+    boards : {
+      type : new GraphQLList(BoardType),
+      async resolve(parent,args){
+        return await Board.find();
+      }
     }
   }
 });
@@ -57,6 +64,20 @@ const mutations = new GraphQLObjectType({
         let user = new User({ name, email, password });
         await user.save();
         return user;
+      }
+    },
+    addBoard: {
+      type: BoardType,
+      args: {
+        name: { type: GraphQLString },
+        description: { type: GraphQLString },
+        owner: { type: GraphQLID },
+      },
+      async resolve(parent, args) {
+        let {name ,description,owner} = args ;
+        let board = new Board({name ,description,owner})
+        await board.save();
+        return board;
       }
     }
   }
